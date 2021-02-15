@@ -1,0 +1,5 @@
+Hardcore FFA: A server-side script for Factorio
+
+Force creation/management system. Forces are automatically destroyed when they
+lose all their characters, so this script relies on the Persistent Character mod
+to ensure characters are always killable.
