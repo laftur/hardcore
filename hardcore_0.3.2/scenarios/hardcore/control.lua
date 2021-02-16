@@ -146,7 +146,7 @@ local console_invite = function(command)
     return
   end
   -- Abort if target doesn't exist
-  local target = game.players[command.paramter]
+  local target = game.players[command.parameter]
   if target == nil then
     player.print("Failed to invite: "..command.parameter..
       " isn't a player name")
@@ -173,7 +173,7 @@ local console_join = function(command)
     return
   end
   -- Abort if target doesn't exist
-  local target = game.forces[command.paramter]
+  local target = game.forces[command.parameter]
   if target == nil then
     player.print("Failed to join: "..command.parameter.." isn't a team name")
     return
