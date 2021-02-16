@@ -286,7 +286,7 @@ end,
 script.on_event(defines.events.on_player_changed_force, function(event)
   local force = event.force
   if force.get_entity_count("character") == 0 then kill(force) end
-end
+end)
 
 
 -- Handle new/removed forces
@@ -315,13 +315,21 @@ script.on_event(defines.events.on_pre_player_removed, function(event)
   for i, proposals in pairs(global.invites) do
     proposals[event.player_index] = nil
   end
-end
+end)
 script.on_event(defines.events.on_player_created, function(event)
   -- Give new player items
   local player = game.players[event.player_index]
   for i, v in pairs(global.created_items) do
     player.insert{name = i, count = v}
   end
+end)
+script.on_event(defines.events.on_player_died, function(event)
+  local player = game.players[event.player_index]
+  -- Because of Persistent Character, when a player dies, it's because they ran
+  -- out of available characters to switch to instead of dying.
+  -- Kicking player to the default force should ensure that their respawn
+  -- doesn't (immediately) contribute to the character count of their force.
+  player.force = game.forces.player
 end)
 script.on_event(defines.events.on_player_respawned, function(event)
   local player = game.players[event.player_index]
