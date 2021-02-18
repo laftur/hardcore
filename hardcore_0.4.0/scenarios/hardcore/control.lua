@@ -139,7 +139,10 @@ local console_invite = function(command)
   local player = game.players[command.player_index]
 
   -- Abort if invite comes from default team
-  if player.force.index == 1 then return end
+  if player.force.index == 1 then
+    player.print("Failed to invite: Default team cannot invite")
+    return
+  end
   -- Abort if command has no parameter
   if command.parameter == nil then
     player.print("Failed to invite: No player specified")
@@ -186,7 +189,7 @@ local console_join = function(command)
 
   -- Join if invited
   local invites = global.invites[target.index]
-  if invites[player.index] then
+  if invites and invites[player.index] then
     player.force = target
     invites[player.index] = nil
     player.print("Joined "..target.name)
