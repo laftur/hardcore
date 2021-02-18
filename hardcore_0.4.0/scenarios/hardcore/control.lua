@@ -231,6 +231,8 @@ script.on_init(function()
   -- Initialize friend proposal system
   global.friend_props = {}
   global.invites = {}
+  -- Disable technology progress for the default team
+  game.forces.player.disable_research()
 end)
 script.on_load(function()
   -- Register commands again
