@@ -289,8 +289,20 @@ end,
   {{filter = "type", type = "character"}}
 )
 script.on_event(defines.events.on_player_changed_force, function(event)
+  -- Check if force lost its last character via defection
   local force = event.force
-  if force.get_entity_count("character") == 0 then kill(force) end
+  if global.invites[force.index] and
+     force.get_entity_count("character") == 0 then
+    kill(force)
+  end
+
+  -- Respawn instantly if player joined default team
+  local player = game.players[event.player_index]
+  if player.force.index == 1 and not player.character then
+    player.set_controller{ type = defines.controllers.ghost,
+      start_position = player.force.get_spawn_position(player.surface) }
+    player.ticks_to_respawn = 0
+  end
 end)
 
 
@@ -328,13 +340,26 @@ script.on_event(defines.events.on_player_created, function(event)
     player.insert{name = i, count = v}
   end
 end)
-script.on_event(defines.events.on_player_died, function(event)
+
+
+local lock_player = function(player)
+  -- Lock player ghost to the spawn point
+  player.set_controller{ type = defines.controllers.ghost,
+    start_position = player.force.get_spawn_position(player.surface) }
+  -- Player stays a ghost until their team is destroyed or a body becomes free
+  player.ticks_to_respawn = nil
+end
+-- Respawn is possible only on the default force
+script.on_event(defines.events.on_pre_player_died, function(event)
   local player = game.players[event.player_index]
-  -- Because of Persistent Character, when a player dies, it's because they ran
-  -- out of available characters to switch to instead of dying.
-  -- Kicking player to the default force should ensure that their respawn
-  -- doesn't (immediately) contribute to the character count of their force.
-  player.force = game.forces.player
+  if player.force.index == 1 or
+     player.character.get_health_ratio() ~= 0 then return end
+  lock_player(player)
+end)
+script.on_event(defines.events.on_player_joined_game, function(event)
+  local player = game.players[event.player_index]
+  if player.force.index == 1 or player.character then return end
+  lock_player(player)
 end)
 script.on_event(defines.events.on_player_respawned, function(event)
   local player = game.players[event.player_index]
